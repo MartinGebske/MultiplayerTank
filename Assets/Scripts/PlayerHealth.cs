@@ -9,6 +9,7 @@ public class PlayerHealth : NetworkBehaviour {
 
     public GameObject m_deathPrefab;
 
+    [SyncVar]
     public bool m_isDead = false;
     public RectTransform m_healthBar;
 
@@ -19,7 +20,7 @@ public class PlayerHealth : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        m_currentHealth = m_maxHealth;
+        ResetTank();
 	}
 
     void UpdateHealthBar(float value)
@@ -40,11 +41,11 @@ public class PlayerHealth : NetworkBehaviour {
 
         if (m_currentHealth <= 0 && !m_isDead) {
             m_isDead = true;
-            Die();
+            RpcDie();
         }
     }
-
-    public void Die()
+    [ClientRpc]
+    public void RpcDie()
     {
         if (m_deathPrefab != null) {
             GameObject deathFX = Instantiate(m_deathPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity) as GameObject;
@@ -72,8 +73,11 @@ public class PlayerHealth : NetworkBehaviour {
             r.enabled = state;
         }
     }
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
+    public void ResetTank()
+    {
+        m_currentHealth = m_maxHealth;
+        SetActiveState(true);
+        m_isDead = false;
+    }
 }

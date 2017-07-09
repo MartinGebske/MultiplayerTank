@@ -30,7 +30,7 @@ public class PlayerController : NetworkBehaviour {
 
 	void FixedUpdate()
 	{
-		if (!isLocalPlayer) {
+		if (!isLocalPlayer || m_pHealth.m_isDead) {
 			return;
 		}
 		Vector3 inputDirection = GetInput();
@@ -40,7 +40,7 @@ public class PlayerController : NetworkBehaviour {
 	void Update()
 	{
 
-		if (!isLocalPlayer) {
+		if (!isLocalPlayer || m_pHealth.m_isDead) {
 			return;
 		}
 		if (Input.GetMouseButtonDown (0)) {
@@ -55,8 +55,19 @@ public class PlayerController : NetworkBehaviour {
 		m_pMotor.RotateTurret (turretDir);
 	}
 
+    void Disable()
+    {
+        Debug.Log("We have died");
+        StartCoroutine("RespawnRoutine");
+    }
 
-
+    IEnumerator RespawnRoutine()
+    {
+        transform.position = Vector3.zero;
+        m_pMotor.m_rigidbody.velocity = Vector3.zero;
+        yield return new WaitForSeconds(3f);
+        m_pHealth.ResetTank();
+    }
 }
 
 
